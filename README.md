@@ -2,7 +2,7 @@
 esercizi tesina progettazione di sistemi operativi
 
 # TODO
-- [ ] esercizio 1
+- [ ] esercizio 1 A
 - [ ] esercizio 2
 - [ ] esercizio 3
 - [ ] esercizio 4
