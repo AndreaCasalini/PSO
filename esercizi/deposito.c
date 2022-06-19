@@ -9,6 +9,7 @@
 /* semaforo di mutua esclusione per l'accesso a tutte le variabili condivise 
 (simula il semaforo di mutua esclusiome associato ad una istanza di tipo monitor) */
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; 
+pthread_cond_t coda;
 
 
 #define V 7    /*numero di vani*/
@@ -17,23 +18,27 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 int deposito[V]={0};/*array struttura deposito*/
 
 int to_store(int bagagli_utente){ /*ritorno il vano in cui mettiamo i bagagli*/
-     int ris=V; /*V valore di vano non valido in quanto arriva fino a V-1*/
      pthread_mutex_lock(&mutex);
-     while(ris==V){
+     while(1){
           for(int i=0;i<V;i++){
                if(deposito[i]+bagagli_utente<=N){
                     deposito[i]+=bagagli_utente;
-                    ris=i;
-                    break;
+                    return i;
                }
                /*non ho trovato un vano libero per i bagagli quindi devo attendere*/
+               pthread_cond_wait(&coda, &mutex);
           }
      }
      pthread_mutex_unlock(&mutex);
 }
 
-void to_retire(){
+void to_retire(int vano_utente, int bagagli_utente){
+     pthread_mutex_lock(&mutex);
 
+     deposito[vano_utente]-=bagagli_utente;
+     pthread_cond_signal(&coda);
+
+     pthread_mutex_unlock(&mutex);
 }
 
 void *user(void*id){
@@ -48,34 +53,19 @@ void *user(void*id){
      srand(time(NULL));/*inizializzo il seme*/
      /*attribuisco un numero casuale di bagagli ad ogni utente compreso tra 1 e N*/
      int bagagli_utente= (rand() % (N-1)) + 1 ; 
-     int vano_used=V;/*essendo presenti V vani contati da 0 a (V-1), V sarebbe un valore non ammissibile*/
-     //pthread_mutex_lock(&mutex);
      int i=0;
      while(1){
           /*deposito bagaglio*/
-          printf("Utente-[Thread%d e identificatore %lu] ENTRO NEL DEPOSITO PER LASCIARE I [%D] BAGAGLI", *pi, pthread_self(),bagagli_utente);
+          printf("Utente-[Thread%d e identificatore %lu] ENTRO NEL DEPOSITO PER LASCIARE I [%d] BAGAGLI\n", *pi, pthread_self(),bagagli_utente);
           int n_vano = to_store(bagagli_utente);
           /*aspetto*/
           printf("Utente-[Thread%d e identificatore %lu] STO ASPETTANDO PER POI RITIRARE (iter. %d)\n", *pi, pthread_self(), i);
           sleep(6);
           /*ritiro bagaglio*/
           printf("Utente-[Thread%d e identificatore %lu] ESCO DAL DEPOSITO (iter. %d)\n", *pi, pthread_self(), i);
-          to_retire();
+          to_retire(n_vano,bagagli_utente);
      }
-     while(vano_used==V){
-          for (int i=0;i<V;i++){
-               /*i bagagli dell utente stanno nel vano i-esimo*/
-               if (deposito[i]+bagagli_utente<=N){
-                    deposito[i]=deposito[i]+bagagli_utente;
-                    vano_used=i;
-                    break;
-               }
-          }
-          /*non ho trovato un vano libero per i bagagli quindi devo attendere*/
-     }
-
-     //pthread_mutex_unlock(&mutex);
-    
+      
 }
 
 int main (int argc,char **argv)
@@ -86,7 +76,6 @@ int main (int argc,char **argv)
      int *p;
      int NUM_THREADS = 10;
 
-     
 
      thread=(pthread_t *) malloc(NUM_THREADS * sizeof(pthread_t));
      if (thread == NULL)
