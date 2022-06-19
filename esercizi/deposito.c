@@ -65,7 +65,7 @@ void *user(void*id){
           printf("Utente-[Thread%d e identificatore %lu] ASPETTO (iter. %d)\n", *pi, pthread_self(), i);
           sleep(5);
           /*ritiro bagaglio*/
-          printf("Utente-[Thread%d e identificatore %lu] ESCO  (iter. %d)\n", *pi, pthread_self(), i);
+          printf("Utente-[Thread%d e identificatore %lu] ESCO    (iter. %d)\n", *pi, pthread_self(), i);
           to_retire(n_vano,bagagli_utente);
           i++;
           sleep(2);
