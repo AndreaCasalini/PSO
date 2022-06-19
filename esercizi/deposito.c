@@ -79,8 +79,15 @@ int main (int argc,char **argv)
      int *taskids;
      int i;
      int *p;
-     int NUM_THREADS = 10;
-
+     if (argc != 2){
+          printf("Errore nel numero di parametri (%d)\n", argc - 1);
+          exit(1);
+     }
+     int NUM_THREADS = atoi(argv[1]);
+     if (NUM_THREADS <= 0){
+          printf("Errore: primo parametro deve essere maggiore di zero\n");
+          exit(2);
+     }
      srand(time(NULL));/*inizializzo il seme*/
 
      thread=(pthread_t *) malloc(NUM_THREADS * sizeof(pthread_t));
