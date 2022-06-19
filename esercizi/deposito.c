@@ -16,8 +16,25 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int deposito[V]={0};/*array struttura deposito*/
 
-void to_store(){}
-void to_retire(){}
+int to_store(int bagagli_utente){ /*ritorno il vano in cui mettiamo i bagagli*/
+     int ris=V; /*V valore di vano non valido in quanto arriva fino a V-1*/
+     pthread_mutex_lock(&mutex);
+     while(ris==V){
+          for(int i=0;i<V;i++){
+               if(deposito[i]+bagagli_utente<=N){
+                    deposito[i]+=bagagli_utente;
+                    ris=i;
+                    break;
+               }
+               /*non ho trovato un vano libero per i bagagli quindi devo attendere*/
+          }
+     }
+     pthread_mutex_unlock(&mutex);
+}
+
+void to_retire(){
+
+}
 
 void *user(void*id){
      int *pi = (int  *)id;
@@ -37,7 +54,7 @@ void *user(void*id){
      while(1){
           /*deposito bagaglio*/
           printf("Utente-[Thread%d e identificatore %lu] ENTRO NEL DEPOSITO PER LASCIARE I [%D] BAGAGLI", *pi, pthread_self(),bagagli_utente);
-          to_store();
+          int n_vano = to_store(bagagli_utente);
           /*aspetto*/
           printf("Utente-[Thread%d e identificatore %lu] STO ASPETTANDO PER POI RITIRARE (iter. %d)\n", *pi, pthread_self(), i);
           sleep(6);
