@@ -13,23 +13,23 @@
 (simula il semaforo di mutua esclusiome associato ad una istanza di tipo monitor) */
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; 
 pthread_cond_t coda;
-int counter=0;/*contatore di utenti in coda in attesa di risveglio*/
-int deposito[V]={0};/*array struttura deposito*/
+int counter=0;       /*contatore di utenti in coda in attesa di risveglio*/
+int deposito[V]={0}; /*array struttura deposito*/
 
-int to_store(int bagagli_utente){ /*ritorno il vano in cui mettiamo i bagagli*/
+void to_store(int *n_vano,int bagagli_utente){ /*ritorno il vano in cui mettiamo i bagagli*/
      pthread_mutex_lock(&mutex);
      while(1){
           for(int i=0;i<V;i++){
                if(deposito[i]+bagagli_utente<=N){
                     deposito[i]+=bagagli_utente;
                     printf("INSERISCO BAGAGLIO NEL VANO %d e sono il thread con id %lu\n",i,pthread_self());
-                    pthread_mutex_unlock(&mutex);
-                    return i;
+                    n_vano=i;
+                    pthread_mutex_unlock(&mutex);  
                }
           }
           /*non ho trovato un vano libero per i bagagli quindi devo attendere*/
           counter++;
-          printf("-->sono [%lu] e sono bloccato\n",pthread_self());
+          //printf("-->sono [%lu] e sono bloccato\n",pthread_self());
           pthread_cond_wait(&coda, &mutex);
           counter--;
      }
@@ -59,8 +59,9 @@ void *user(void*id){
      int i=0;
      while(1){
           /*deposito bagaglio*/
+          int n_vano=V;
           printf("Utente-[Thread%d e identificatore %lu] ENTRO CON N.[%d] BAGAGLI (iter. %d)\n", *pi, pthread_self(),bagagli_utente,i);
-          int n_vano = to_store(bagagli_utente);
+          to_store(*n_vano,bagagli_utente);
           /*aspetto*/
           printf("Utente-[Thread%d e identificatore %lu] ASPETTO (iter. %d)\n", *pi, pthread_self(), i);
           sleep(5);
