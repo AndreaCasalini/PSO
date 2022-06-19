@@ -68,7 +68,7 @@ void *user(void*id){
           printf("Utente-[Thread%d e identificatore %lu] ESCO    (iter. %d)\n", *pi, pthread_self(), i);
           to_retire(n_vano,bagagli_utente);
           i++;
-          sleep(2);
+          sleep(2);/*tempo prima che l'utente rientri nel deposito per depositare altri bagagli*/
      }
       
 }
