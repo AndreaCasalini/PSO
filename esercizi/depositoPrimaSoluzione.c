@@ -13,18 +13,16 @@
 (simula il semaforo di mutua esclusiome associato ad una istanza di tipo monitor) */
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; 
 pthread_cond_t coda;
-int contatore_sospesi=0;       /*contatore di utenti in coda in attesa di risveglio*/
-int cap_vano[V]={0}; /*array struttura deposito*/
+int contatore_sospesi=0;      /*contatore di utenti in coda in attesa di risveglio*/
+int cap_vano[V]={0};          /*array struttura deposito*/
 
-void lascia(int *quale_vano,int bagagli_utente){ /*ritorno il vano in cui mettiamo i bagagli*/
+void lascia(int *quale_vano,int n_bagagli){ 
      pthread_mutex_lock(&mutex);
      *quale_vano=0;
      while(*quale_vano==0){
-          for(int i=0;i<V;i++){
-               if(cap_vano[i]+bagagli_utente<=N){
-                    printf("INSERISCO BAGAGLIO NEL VANO %d e sono il thread con id %lu\n",i,pthread_self());
+          for(int i=1;i<=V;i++){
+               if(cap_vano[i-1]+n_bagagli<=N){
                     *quale_vano=i;
-                    pthread_mutex_unlock(&mutex);  
                }
           }
           if(*quale_vano==0){
@@ -35,14 +33,16 @@ void lascia(int *quale_vano,int bagagli_utente){ /*ritorno il vano in cui mettia
                contatore_sospesi--;
           }
      }
-     cap_vano[*quale_vano]+=bagagli_utente;
+     printf("INSERISCO BAGAGLIO NEL VANO %d e sono il thread con id %lu\n",*quale_vano,pthread_self());
+     cap_vano[*quale_vano-1]+=n_bagagli;
+     pthread_mutex_unlock(&mutex); 
 
 }
 
-void prendi(int vano_utente, int bagagli_utente){
+void prendi(int vano_utente, int n_bagagli){
      pthread_mutex_lock(&mutex);
 
-     cap_vano[vano_utente]-=bagagli_utente;
+     cap_vano[vano_utente-1]-=n_bagagli;
      for(int i=0;i<contatore_sospesi;i++)
           pthread_cond_signal(&coda);
      
@@ -59,19 +59,19 @@ void *user(void*id){
           exit(-1);
      }
      /*attribuisco un numero casuale di bagagli ad ogni utente compreso tra 1 e N*/
-     int bagagli_utente= (rand() % (N)) + 1 ; 
+     int n_bagagli= (rand() % (N)) + 1 ; 
      int i=0;
      while(1){
           /*cap_vano bagaglio*/
           int quale_vano=V;
-          printf("Utente-[Thread%d e identificatore %lu] ENTRO CON N.[%d] BAGAGLI (iter. %d)\n", *pi, pthread_self(),bagagli_utente,i);
-          lascia(&quale_vano,bagagli_utente);
+          printf("Utente-[Thread%d e identificatore %lu] ENTRO CON N.[%d] BAGAGLI (iter. %d)\n", *pi, pthread_self(),n_bagagli,i);
+          lascia(&quale_vano,n_bagagli);
           /*aspetto*/
           printf("Utente-[Thread%d e identificatore %lu] ASPETTO (iter. %d)\n", *pi, pthread_self(), i);
           sleep(5);
           /*ritiro bagaglio*/
           printf("Utente-[Thread%d e identificatore %lu] ESCO    (iter. %d)\n", *pi, pthread_self(), i);
-          prendi(quale_vano,bagagli_utente);
+          prendi(quale_vano,n_bagagli);
           i++;
           sleep(2);/*tempo prima che l'utente rientri nel deposito per depositare altri bagagli*/
      }
