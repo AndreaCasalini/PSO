@@ -11,18 +11,19 @@
 
 int corridoio;      /*numero di corridoio 1 o 2*/
 int gruppo;         /*numero di persone che compongono il gruppo da 1 a MAX*/
-int contatt;        /*elementi in attesa in sala*/  //<<<<---non so se serve
+int contatt=0;        /*elementi in attesa in sala*/  //<<<<---non so se serve
 int cap=0;          /*capacità corrente della sala*/
 typedef enum{
     in, out
 }dir;
 
-dir direz[2];                 /*2 rappresenta il numro di corridoi*/
-int nutenti[2];               /*2 rappresenta il numro di corridoi*/
+dir direz[2];                 /*2 rappresenta il numero di corridoi*/
+
+int nutenti[2];               /*2 rappresenta il numero di corridoi*/
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; 
 pthread_cond_t attsala;
-pthread_cond_t codain[2];     /*2 rappresenta il numro di corridoi*/
-pthread_cond_t codaout[2];    /*2 rappresenta il numro di corridoi*/
+pthread_cond_t codain[2];     /*2 rappresenta il numero di corridoi*/
+pthread_cond_t codaout[2];    /*2 rappresenta il numero di corridoi*/
 int attesa_coda_in=0;
 int attesa_coda_out=0;
 
@@ -31,14 +32,12 @@ void INcorrAccesso(int c,int n){
      while(cap+n>CAPAC){ /*se il gruppo corrente non ci starebbe nella stanza WAIT*/
           contatt++;
           pthread_cond_wait(&attsala, &mutex);
-          contatt--;
      }
      cap+=n;
      /*controllo se possono entrare se no WAIT corridoio*/
      while(((direz[c]!=in) && (nutenti[c]!=0))||((direz[c]==in)&&((nutenti[c]+n)>MAX))||((direz[c]==in)&&(attesa_coda_out!=0))){
           attesa_coda_in++;
           pthread_cond_wait(&codain[c],&mutex);
-          attesa_coda_in--;
      }
      nutenti[c]+=n;
      direz[c]=in;
@@ -47,17 +46,22 @@ void INcorrAccesso(int c,int n){
 }
 
 void segnalain(int c){
-     for(int i =MAX;i>0;i--){
-          while(attesa_coda_in!=0 && (nutenti[c]+1<=MAX) && attesa_coda_out==0){
+     for(int i =MAX;i!=0;i--){
+          while(attesa_coda_in!=0 && (nutenti[c]+i<=MAX) && attesa_coda_out==0){
                pthread_cond_signal(&codain[c]);
+               attesa_coda_in--;
+               //printf("sto girando nella SEGNALIN DI %lu\n",pthread_self());
           }
+          //printf("ESCO DAL WHILE DELLA SEGNALIN DEL PROCESSO %lu\n",pthread_self());
      }
 }
 
 void segnalaout(int c){
-     for(int i =MAX;i>0;i--){
-          while(attesa_coda_out!=0 &&(nutenti[c]+1<=MAX)){
+     for(int i =MAX;i!=0;i--){
+          while(attesa_coda_out!=0 &&(nutenti[c]+i<=MAX)){
                pthread_cond_signal(&codaout[c]);
+               attesa_coda_out--;
+               //printf("sto girando nella SEGNALOUT DI %lu\n",pthread_self());
           }
      }
 }
@@ -78,11 +82,12 @@ void OUTcorrAccesso(int c, int n){
      //segnala eventualmente all altro corridoio
      while(contatt>0){
           pthread_cond_signal(&attsala);          /*sveglio tutti i processi in attesa della sala*/
+          contatt--;
      }
+     //printf("dir[%d] = %d e sono processo %lu\n",c,direz[c],pthread_self());
      while(((direz[c]!=out)&&(nutenti[c]!=0))||((direz[c]==out)&&(nutenti[c]+n>MAX))){ 
           attesa_coda_out++;
           pthread_cond_wait(&codaout[c],&mutex);  /*metto in coda i processi che non trovano il corridoio abbastanza vuoto per attraversarlo*/
-          attesa_coda_out--;
      }
      nutenti[c]+=n;                /*faccio entrare il gruppo nel corridoio*/
      direz[c]=out;                 /*imposto la direzione*/
@@ -114,6 +119,7 @@ void *utente(void*id){
           /* entrano*/
           printf("Utente-[Thread%d e identificatore %lu] ENTRIAMO IN N.[%d]  (iter. %d)\n", *pi, pthread_self(),n,i);
           INcorrAccesso(0,n);
+          //printf("Utente-[Thread%d e identificatore %lu] PERCORRE CORRIDOIO DI INGRESSO\n",*pi, pthread_self());
           sleep(1);/*transita*/
           INcorrRilascio(0,n);
           /*aspetto*/
@@ -122,6 +128,7 @@ void *utente(void*id){
           /*escono*/
           printf("Utente-[Thread%d e identificatore %lu] ESCONO                 (iter. %d)\n", *pi, pthread_self(), i);
           OUTcorrAccesso(1,n);
+          //printf("Utente-[Thread%d e identificatore %lu] PERCORRE CORRIDOIO DI USCITA\n",*pi, pthread_self());
           sleep(1);/*transita*/
           OUTcorrRilascio(1,n);
           i++;
@@ -133,6 +140,10 @@ void *utente(void*id){
 
 int main (int argc,char **argv)
 {
+     nutenti[0]=0;
+     nutenti[1]=0;
+     direz[0]=in;
+     direz[1]=in;
      pthread_t *thread;
      int *taskids;
      int i;
