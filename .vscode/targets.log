@@ -2,13 +2,19 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 make: *** No rule to make target 'all'.  Stop.
 
 # GNU Make 4.3
+ 
 # Built for x86_64-pc-linux-gnu
+ 
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
+ 
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+ 
 # This is free software: you are free to change and redistribute it.
+ 
 # There is NO WARRANTY, to the extent permitted by law.
+ 
 
-# Make data base, printed on Sat Jun 25 11:47:15 2022
+# Make data base, printed on Sun Jun 26 10:18:41 2022
 
 # Variables
 
@@ -23,7 +29,7 @@ GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
 SSH_AGENT_LAUNCHER = gnome-keyring
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-5f49b903-8352-4664-8b00-8a4ebb47a452.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-09214213-39b3-4e1a-9347-edf338a7e10e.sock
 # environment
 VSCODE_CWD = /home/andrea/Scrivania/pso/PSO
 # default
@@ -55,13 +61,13 @@ VSCODE_CODE_CACHE_PATH = /home/andrea/.config/Code/CachedData/30d9c6cd9483b2cc58
 # environment
 LANG = C
 # environment
-XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.JX9KO1
+XAUTHORITY = /run/user/1000/.mutter-Xwaylandauth.KHA3N1
 # default
 .LOADED := 
 # default
 .INCLUDE_DIRS = /usr/local/include /usr/include /usr/include
 # environment
-GNOME_TERMINAL_SERVICE = :1.97
+GNOME_TERMINAL_SERVICE = :1.103
 # makefile
 MAKEFLAGS = pqrR
 # makefile
@@ -95,13 +101,13 @@ MAKEFILE_LIST :=
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 3217
+VSCODE_PID = 3267
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # environment
-SESSION_MANAGER = local/andrea-VirtualBox:@/tmp/.ICE-unix/1935,unix/andrea-VirtualBox:/tmp/.ICE-unix/1935
+SESSION_MANAGER = local/andrea-VirtualBox:@/tmp/.ICE-unix/1958,unix/andrea-VirtualBox:/tmp/.ICE-unix/1958
 # automatic
 *F = $(notdir $*)
 # environment
@@ -125,7 +131,7 @@ XMODIFIERS = @im=ibus
 # environment
 SHLVL = 1
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/18532c79_ed57_4335_8fa5_5f50af2c44f1
+GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/626ae35f_d66e_4439_8265_509c270c0846
 # environment
 MAKELEVEL := 0
 # default
@@ -137,7 +143,7 @@ MAKEFILES :=
 # automatic
 ^F = $(notdir $^)
 # environment
-INVOCATION_ID = bb45eaddfdc949aaa214c721322e0ef0
+INVOCATION_ID = a27ab867342c489e8050249f5367ec87
 # environment
 VSCODE_LOG_NATIVE = false
 # environment
@@ -165,7 +171,7 @@ LOGNAME = andrea
 # makefile
 .DEFAULT_GOAL := 
 # environment
-SYSTEMD_EXEC_PID = 3036
+SYSTEMD_EXEC_PID = 3013
 # environment
 DISPLAY = :0
 # environment
@@ -175,7 +181,7 @@ GTK_MODULES = gail:atk-bridge
 # default
 MAKE_VERSION := 4.3
 # environment
-MANAGERPID = 1846
+MANAGERPID = 1867
 # environment
 _ = /usr/bin/code
 # environment
@@ -183,7 +189,7 @@ XDG_RUNTIME_DIR = /run/user/1000
 # environment
 COLORTERM = truecolor
 # environment
-JOURNAL_STREAM = 8:29884
+JOURNAL_STREAM = 8:28740
 # environment
 XDG_SESSION_CLASS = user
 # environment
@@ -280,12 +286,12 @@ GNUmakefile:
 # No general ('VPATH' variable) search path.
 
 # strcache buffers: 1 (0) / strings = 15 / storage = 126 B / avg = 8 B
- 
 # current buf: size = 8162 B / used = 126 B / count = 15 / avg = 8 B
 
 # strcache performance: lookups = 18 / hit rate = 16%
 # hash-table stats:
 # Load=15/8192=0%, Rehash=0, Collisions=0/18=0%
-# Finished Make data base on Sat Jun 25 11:47:15 2022
+# Finished Make data base on Sun Jun 26 10:18:41 2022
+ 
 
  
