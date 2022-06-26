@@ -74,6 +74,31 @@ void INcorrRilascio(int c, int n){
      pthread_mutex_unlock(&mutex); 
 }
 
+void OUTcorrAccesso(int c, int n){
+     pthread_mutex_lock(&mutex);
+     cap-=n;
+     //segnala eventualmente all altro corridoio
+     while(contatt>0){
+          pthread_cond_signal(&attsala);
+          contatt--;
+     }
+     while(((direz[c]!=out)&&(nutenti[c]!=0))||((direz[c]==out)&&(nutenti[c]+n>MAX))){
+          attesa_coda_out++;
+          pthread_cond_wait(&codaout[c],&mutex);
+          attesa_coda_out--;
+     }
+     nutenti[c]-=n;
+     direz[c]=out;
+     pthread_mutex_unlock(&mutex); 
+}
+
+void OUTcorrRilascio(int c, int n){
+     pthread_mutex_lock(&mutex);
+     nutenti[c]-=n;
+     segnalaout(c);
+     segnalain(c);
+     pthread_mutex_unlock(&mutex); 
+}
 
 void *utente(void*id){
      int *pi = (int  *)id;
@@ -90,16 +115,16 @@ void *utente(void*id){
      int i=0;
      while(1){
           /* entrano*/
-          printf("Utente-[Thread%d e identificatore %lu] ENTRIAMO IN N.[%d]     (iter. %d)\n", *pi, pthread_self(),n_persone,i);
-          INcorAccesso(c,n);
-          INcorRilascio(c,n);
+          printf("Utente-[Thread%d e identificatore %lu] ENTRIAMO IN N.[%d]     (iter. %d)\n", *pi, pthread_self(),n,i);
+          INcorrAccesso(c,n);
+          INcorrRilascio(c,n);
           /*aspetto*/
           printf("Utente-[Thread%d e identificatore %lu] ASPETTO                (iter. %d)\n", *pi, pthread_self(), i);
           sleep(5);
           /*escono*/
           printf("Utente-[Thread%d e identificatore %lu] ESCONO                 (iter. %d)\n", *pi, pthread_self(), i);
-          OUTcorAccesso(c,n);
-          OUTcorRilascio(c,n);
+          OUTcorrAccesso(c,n);
+          OUTcorrRilascio(c,n);
           i++;
           sleep(2);/*tempo prima che l'utente rientri nel deposito per depositare altri bagagli*/
      }
