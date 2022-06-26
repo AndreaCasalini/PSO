@@ -48,7 +48,7 @@ void INcorrAccesso(int c,int n){
 
 void segnalain(int c){
      for(int i =MAX;i>0;i--){
-          while(attesa_coda_in!=0 &&(nutenti[c]+1<=MAX)&& attesa_coda_out==0){
+          while(attesa_coda_in!=0 && (nutenti[c]+1<=MAX) && attesa_coda_out==0){
                pthread_cond_signal(&codain[c]);
           }
      }
@@ -56,7 +56,7 @@ void segnalain(int c){
 
 void segnalaout(int c){
      for(int i =MAX;i>0;i--){
-          while(attesa_coda_out!=0 &&(nutenti[c]+1<=MAX)&& attesa_coda_in==0){
+          while(attesa_coda_out!=0 &&(nutenti[c]+1<=MAX)){
                pthread_cond_signal(&codaout[c]);
           }
      }
@@ -78,7 +78,6 @@ void OUTcorrAccesso(int c, int n){
      //segnala eventualmente all altro corridoio
      while(contatt>0){
           pthread_cond_signal(&attsala);          /*sveglio tutti i processi in attesa della sala*/
-          contatt--;
      }
      while(((direz[c]!=out)&&(nutenti[c]!=0))||((direz[c]==out)&&(nutenti[c]+n>MAX))){ 
           attesa_coda_out++;
@@ -109,22 +108,24 @@ void *utente(void*id){
      }
      /*attribuisco un numero casuale di bagagli ad ogni utente compreso tra 1 e N*/
      int n= (rand() % (MAX)) + 1 ;  /*numero utenti nel gruppo*/
-     int c=(rand()% (2))+1;                       /*corridoio*/
+     //int c=(rand()% (2));                       /*corridoio*/
      int i=0;
      while(1){
           /* entrano*/
-          printf("Utente-[Thread%d e identificatore %lu] ENTRIAMO IN N.[%d]     (iter. %d)\n", *pi, pthread_self(),n,i);
-          INcorrAccesso(c,n);
-          INcorrRilascio(c,n);
+          printf("Utente-[Thread%d e identificatore %lu] ENTRIAMO IN N.[%d]  (iter. %d)\n", *pi, pthread_self(),n,i);
+          INcorrAccesso(0,n);
+          sleep(1);/*transita*/
+          INcorrRilascio(0,n);
           /*aspetto*/
           printf("Utente-[Thread%d e identificatore %lu] ASPETTO                (iter. %d)\n", *pi, pthread_self(), i);
           sleep(5);
           /*escono*/
           printf("Utente-[Thread%d e identificatore %lu] ESCONO                 (iter. %d)\n", *pi, pthread_self(), i);
-          OUTcorrAccesso(c,n);
-          OUTcorrRilascio(c,n);
+          OUTcorrAccesso(1,n);
+          sleep(1);/*transita*/
+          OUTcorrRilascio(1,n);
           i++;
-          sleep(2);/*tempo prima che l'utente rientri nel deposito per depositare altri bagagli*/
+          sleep(2);/*tempo prima che l'utente rientri in fila per entrare nella sala*/
      }
       
 }
