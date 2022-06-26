@@ -33,6 +33,8 @@ void INcorrAccesso(int c,int n){
           contatt++;
           pthread_cond_wait(&attsala, &mutex);
      }
+     //printf("-------------ESCO DAL CHECK SALA %lu\n",pthread_self());
+     //printf("-------------VARIABILI : direz[c]=%d, nutenti[c]=%d,n=%d,attesacodaout=%d, %lu\n",direz[c],nutenti[c],n,attesa_coda_out,pthread_self());
      cap+=n;
      /*controllo se possono entrare se no WAIT corridoio*/
      while(((direz[c]!=in) && (nutenti[c]!=0))||((direz[c]==in)&&((nutenti[c]+n)>MAX))||((direz[c]==in)&&(attesa_coda_out!=0))){
@@ -120,19 +122,19 @@ void *utente(void*id){
           printf("Utente-[Thread%d e identificatore %lu] ENTRIAMO IN N.[%d]  (iter. %d)\n", *pi, pthread_self(),n,i);
           INcorrAccesso(0,n);
           //printf("Utente-[Thread%d e identificatore %lu] PERCORRE CORRIDOIO DI INGRESSO\n",*pi, pthread_self());
-          sleep(1);/*transita*/
+          sleep(0.2);/*transita*/
           INcorrRilascio(0,n);
           /*aspetto*/
           printf("Utente-[Thread%d e identificatore %lu] ASPETTO                (iter. %d)\n", *pi, pthread_self(), i);
-          sleep(5);
+          sleep(0.5);
           /*escono*/
-          printf("Utente-[Thread%d e identificatore %lu] ESCONO                 (iter. %d)\n", *pi, pthread_self(), i);
+          printf("Utente-[Thread%d e identificatore %lu] ESCONO   *******       (iter. %d)\n", *pi, pthread_self(), i);
           OUTcorrAccesso(1,n);
           //printf("Utente-[Thread%d e identificatore %lu] PERCORRE CORRIDOIO DI USCITA\n",*pi, pthread_self());
-          sleep(1);/*transita*/
+          sleep(0.2);/*transita*/
           OUTcorrRilascio(1,n);
           i++;
-          sleep(2);/*tempo prima che l'utente rientri in fila per entrare nella sala*/
+          sleep(5);/*tempo prima che l'utente rientri in fila per entrare nella sala*/
      }
       
 }
@@ -144,6 +146,8 @@ int main (int argc,char **argv)
      nutenti[1]=0;
      direz[0]=in;
      direz[1]=in;
+     attesa_coda_in=0;
+     attesa_coda_out=0;
      pthread_t *thread;
      int *taskids;
      int i;
