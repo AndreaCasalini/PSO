@@ -44,18 +44,14 @@ void myInit(){
 
 void INcorrAccesso(int c,int n){
     pthread_mutex_lock(&mutex);
-    while(cap+n>CAPAC){ /*se il gruppo corrente non ci starebbe nella stanza WAIT*/
-        contatt++;
-        pthread_cond_wait(&attsala, &mutex);
-        contatt--;
-    }
-    cap+=n;
+  
     /*controllo se possono entrare se no WAIT corridoio*/
-    while(((direz[c]!=in) && (nutenti[c]!=0))||((direz[c]==in)&&((nutenti[c]+n)>MAX))||((direz[c]==in)&&(attesa_coda_out[c]!=0))){
+    while(((direz[c]!=in) && (nutenti[c]!=0))||((direz[c]==in)&&((nutenti[c]+n)>MAX))||((direz[c]==in)&&(attesa_coda_out[c]!=0)&&(cap+n>CAPAC))){
         attesa_coda_in[c]++;
         pthread_cond_wait(&codain[c],&mutex);
         attesa_coda_in[c]--;
     }
+    cap+=n;
     nutenti[c]+=n;
     direz[c]=in;
     printf("il processo con pid [%lu] entra nel corridoio [%d] e con [%d] componenti del gruppo. NEL CORRIDOIO SONO IN [%d]\n",pthread_self(),c,n,nutenti[c]); 
@@ -65,7 +61,7 @@ void INcorrAccesso(int c,int n){
 void segnalain(int c){
     for(int i =MAX;i!=0;i--){
         int tmp=attesa_coda_in[c];
-        while(tmp!=0 && (nutenti[c]+i<=MAX) && attesa_coda_out[c]==0){
+        while(tmp!=0 && (nutenti[c]+i<=MAX) && attesa_coda_out[c]==0 && (cap+i<=CAPAC)){
             pthread_cond_signal(&codain[c]);
             tmp--;
         }
