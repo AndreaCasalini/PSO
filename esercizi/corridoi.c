@@ -32,14 +32,14 @@ void INcorrAccesso(int c,int n){
      while(cap+n>CAPAC){ /*se il gruppo corrente non ci starebbe nella stanza WAIT*/
           contatt++;
           pthread_cond_wait(&attsala, &mutex);
+          contatt--;
      }
-     //printf("-------------ESCO DAL CHECK SALA %lu\n",pthread_self());
-     //printf("-------------VARIABILI : direz[c]=%d, nutenti[c]=%d,n=%d,attesacodaout=%d, %lu\n",direz[c],nutenti[c],n,attesa_coda_out,pthread_self());
      cap+=n;
      /*controllo se possono entrare se no WAIT corridoio*/
      while(((direz[c]!=in) && (nutenti[c]!=0))||((direz[c]==in)&&((nutenti[c]+n)>MAX))||((direz[c]==in)&&(attesa_coda_out!=0))){
           attesa_coda_in++;
           pthread_cond_wait(&codain[c],&mutex);
+          attesa_coda_in--;
      }
      nutenti[c]+=n;
      direz[c]=in;
@@ -49,21 +49,20 @@ void INcorrAccesso(int c,int n){
 
 void segnalain(int c){
      for(int i =MAX;i!=0;i--){
-          while(attesa_coda_in!=0 && (nutenti[c]+i<=MAX) && attesa_coda_out==0){
+          int tmp=attesa_coda_in;
+          while(tmp!=0 && (nutenti[c]+i<=MAX) && attesa_coda_out==0){
                pthread_cond_signal(&codain[c]);
-               attesa_coda_in--;
-               //printf("sto girando nella SEGNALIN DI %lu\n",pthread_self());
+               tmp--;
           }
-          //printf("ESCO DAL WHILE DELLA SEGNALIN DEL PROCESSO %lu\n",pthread_self());
      }
 }
 
 void segnalaout(int c){
      for(int i =MAX;i!=0;i--){
-          while(attesa_coda_out!=0 &&(nutenti[c]+i<=MAX)){
+          int tmp=attesa_coda_out;
+          while(tmp!=0 &&(nutenti[c]+i<=MAX)){
                pthread_cond_signal(&codaout[c]);
-               attesa_coda_out--;
-               //printf("sto girando nella SEGNALOUT DI %lu\n",pthread_self());
+               tmp--;
           }
      }
 }
@@ -82,14 +81,13 @@ void OUTcorrAccesso(int c, int n){
      pthread_mutex_lock(&mutex);
      cap-=n;                       /*svuoto sala del gruppo corrente che esce*/
      //segnala eventualmente all altro corridoio
-     while(contatt>0){
+     for(int i=0;i<contatt;i++){
           pthread_cond_signal(&attsala);          /*sveglio tutti i processi in attesa della sala*/
-          contatt--;
      }
-     //printf("dir[%d] = %d e sono processo %lu\n",c,direz[c],pthread_self());
      while(((direz[c]!=out)&&(nutenti[c]!=0))||((direz[c]==out)&&(nutenti[c]+n>MAX))){ 
           attesa_coda_out++;
           pthread_cond_wait(&codaout[c],&mutex);  /*metto in coda i processi che non trovano il corridoio abbastanza vuoto per attraversarlo*/
+          attesa_coda_out--;
      }
      nutenti[c]+=n;                /*faccio entrare il gruppo nel corridoio*/
      direz[c]=out;                 /*imposto la direzione*/
@@ -115,14 +113,12 @@ void *utente(void*id){
      }
      /*attribuisco un numero casuale di bagagli ad ogni utente compreso tra 1 e N*/
      int n= (rand() % (MAX)) + 1 ;  /*numero utenti nel gruppo*/
-     //int c=(rand()% (2));                       /*corridoio*/
      int i=0;
      while(1){
           /* entrano*/
           printf("Utente-[Thread%d e identificatore %lu] ENTRIAMO IN N.[%d]  (iter. %d)\n", *pi, pthread_self(),n,i);
           INcorrAccesso(0,n);
-          //printf("Utente-[Thread%d e identificatore %lu] PERCORRE CORRIDOIO DI INGRESSO\n",*pi, pthread_self());
-          sleep(0.2);/*transita*/
+          sleep(0.1);/*transita*/
           INcorrRilascio(0,n);
           /*aspetto*/
           printf("Utente-[Thread%d e identificatore %lu] ASPETTO                (iter. %d)\n", *pi, pthread_self(), i);
@@ -130,11 +126,10 @@ void *utente(void*id){
           /*escono*/
           printf("Utente-[Thread%d e identificatore %lu] ESCONO   *******       (iter. %d)\n", *pi, pthread_self(), i);
           OUTcorrAccesso(1,n);
-          //printf("Utente-[Thread%d e identificatore %lu] PERCORRE CORRIDOIO DI USCITA\n",*pi, pthread_self());
-          sleep(0.2);/*transita*/
+          sleep(0.1);/*transita*/
           OUTcorrRilascio(1,n);
           i++;
-          sleep(5);/*tempo prima che l'utente rientri in fila per entrare nella sala*/
+          sleep(4);/*tempo prima che l'utente rientri in fila per entrare nella sala*/
      }
       
 }
