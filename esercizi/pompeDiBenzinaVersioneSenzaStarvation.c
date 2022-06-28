@@ -11,7 +11,11 @@
 int benzdisp;       /*benzina disponibile*/
 int pompedisp;      /*pompe disponibili*/
 int sospesi;        /*numero automobili sospese*/
+int sospesiU;        /*numero automobili sospese urgenti con rischio starvation*/
+
 pthread_cond_t codaAM;  /*coda automobili*/
+pthread_cond_t codaAMU;  /*coda automobili urgenti*/
+
 pthread_cond_t codaAB;  /*coda autobotte*/
 pthread_mutex_t mutex;
 int sospesaAB;      /*sospensione autobotte*/
@@ -19,19 +23,30 @@ int sospesaAB;      /*sospensione autobotte*/
 void myInit(){
     pthread_mutex_init(&mutex, NULL);
     pthread_cond_init(&codaAM, NULL);
+    pthread_cond_init(&codaAMU, NULL);
     pthread_cond_init(&codaAB, NULL);
     sospesaAB=0;
     sospesi=0;
+    sospesiU=0;
     benzdisp=L;
     pompedisp=P;
 }
 
 void Richiedi(int l){
     pthread_mutex_lock(&mutex);
-    while(pompedisp==0 || benzdisp<l || sospesaAB !=0 ){
-        sospesi++;
-        pthread_cond_wait(&codaAM,&mutex);
-        sospesi--;
+    if(l>((L/100)*80)){
+        while(pompedisp==0 || benzdisp<l || sospesaAB !=0 ){
+            sospesiU++;
+            pthread_cond_wait(&codaAMU,&mutex);
+            sospesiU--;
+        }
+    }
+    else{
+        while(pompedisp==0 || benzdisp<l || sospesaAB !=0 ){
+            sospesi++;
+            pthread_cond_wait(&codaAM,&mutex);
+            sospesi--;
+        }
     }
     /*acquisizione delle risorse*/
     pompedisp--;
@@ -51,6 +66,9 @@ void Rilascia(){
     int s=sospesi;
     for(int i=0;i<s;i++)
         pthread_cond_signal(&codaAM);
+    int su=sospesiU;
+    for(int i=0;i<su;i++)
+        pthread_cond_signal(&codaAMU);
     
     pthread_mutex_unlock(&mutex); 
 }
@@ -67,10 +85,15 @@ void Rifornisci(){
     benzdisp=L;
     printf("AUTOBOTTE HA RIFORNITO********************************\n");
     /*risveglio automobili in coda*/
-    int s=sospesi;
-    for(int i=0;i<s;i++)
-        pthread_cond_signal(&codaAM);
-    
+    if (sospesiU!=0){
+        pthread_cond_signal(&codaAMU);
+    }
+    else{
+        int s=sospesi;
+        for(int i=0;i<s;i++)
+            pthread_cond_signal(&codaAM); 
+    }
+
     pthread_mutex_unlock(&mutex); 
 }
 
@@ -102,7 +125,7 @@ void *automobile(void*id){
     /*attribuisco un numero casuale di bagagli ad ogni utente compreso tra 1 e N*/
     int i=0;
     while(1){
-        int l= (rand() % (100)) + 1 ;   /*numero litri richiesti dal veicolo*/
+        int l= (rand() % (1000)) + 1 ;   /*numero litri richiesti dal veicolo*/
         /* entrano*/
         printf("Automobile-[Thread%d e identificatore %lu] RICHIEDO [%d] LITRI (iter. %d)\n", *pi, pthread_self(),l,i);
         Richiedi(l);
