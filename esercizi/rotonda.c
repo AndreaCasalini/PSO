@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #define CMAX 10 /*numero massimo di auto nella rotonda*/
 #define N 4     /*numero rami della rotonda*/
@@ -15,7 +16,8 @@ pthread_cond_t daiprec[N];  /*coda */
 pthread_mutex_t mutex;
 int content[N];     /*sospesi in ogni ramo*/
 int cont;           /*numero car in rotonda*/
-int sospesidaiprec;
+int sospesidaiprec[N];
+int sospesienter[N];
 
 void myInit(){
     pthread_mutex_init(&mutex, NULL);
@@ -23,15 +25,18 @@ void myInit(){
         pthread_cond_init(&enter[i], NULL);
         pthread_cond_init(&daiprec[i], NULL);
         content[i]=0;
+        sospesidaiprec[i]=0;
+        sospesienter[i]=0;
     }
     cont=0;
-    sospesidaiprec=0;
 }
 
 void Ingresso(int i){
     pthread_mutex_lock(&mutex);
     if(cont ==NMAX){
+        sospesienter[i]++;
         pthread_cond_wait(&enter[i],&mutex);
+        sospesienter[i]--;
     }
     cont++;
     content[i]++;
@@ -42,23 +47,49 @@ void Ruota(int i,int o){
     pthread_mutex_lock(&mutex);
     content[i]--;
     if(content[i]==0){
-        for(int l=0;l<sospesidaiprec;l++){
-            pthread_cond_signal(&daiprec);
+        for(int l=0;l<sospesidaiprec[i];l++){
+            pthread_cond_signal(&daiprec[l]);
         }
     }
-    for(int j=i;i<o;i++){  //METTERE A POSTO
-        while(cont<NMAX && content[i]!=0){
-            sospesidaiprec++;
-            pthread_cond_wait(&daiprec[i],&mutex);
-            sospesidaiprec--;
+    int uscitaprima;
+    if (o==0)
+        uscitaprima=N-1;
+    else
+        uscitaprima=o-1;
+    //printf("sono nel thread %lu e i valori sono i+1=%d o-1=%d\n",pthread_self(),((i+1)%(N-1)),uscitaprima);
+
+    for(int j=((i+1)%(N-1));j!=uscitaprima;j++){ 
+        while(cont<NMAX && content[j]!=0){
+            sospesidaiprec[j]++;
+            pthread_cond_wait(&daiprec[j],&mutex);
+            sospesidaiprec[j]--;
         }
     }
     pthread_mutex_unlock(&mutex);
 
 }
 
+bool cequalcunoincoda(){
+    for (int j=1;j<N;j++){
+        if(sospesienter[j]!=0)
+            return true;
+    }
+    return false;
+}
+
 void Esci(int o){
-    
+    pthread_mutex_lock(&mutex);
+    cont--;
+    while (cont<NMAX && cequalcunoincoda()){
+        for(int j=0;j<N;j++){
+            int tmp=0;
+            while(cont<NMAX &&tmp<sospesienter[j]){
+                tmp++;
+                pthread_cond_signal(&enter[j]);
+            }
+        }
+    }
+    pthread_mutex_unlock(&mutex);
 }
 
 void *Auto(void*id){
@@ -78,18 +109,18 @@ void *Auto(void*id){
     while(1){
         i= (rand() % (N)) ;
         o= (rand() % (N)) ; 
-        /*cap_vano bagaglio*/
+        /*arrivo all ingresso della rotatoria*/
         printf("Utente-[Thread%d e identificatore %lu] ENTRO ALL'INGRESSO[%d] E VOGLIO USCIRE ALLA [%d] (iter. %d)\n", *pi, pthread_self(),i,o,k);
         Ingresso(i);
-        /*aspetto*/
+        /*entro in rotatoria*/
         printf("Utente-[Thread%d e identificatore %lu] RUOTO (iter. %d)\n", *pi, pthread_self(), k);
         Ruota(i,o);
         sleep(5);
-        /*ritiro bagaglio*/
+        /*esco dalla rotatoria*/
         printf("Utente-[Thread%d e identificatore %lu] ESCO  alla [%d]  (iter. %d)\n", *pi, pthread_self(),o,k);
         Esci(o);
         k++;
-        sleep(2);/*tempo prima che l'utente rientri nel deposito per depositare altri bagagli*/
+        sleep(2);/*tempo prima che l'utente rientri in rotatoria*/
     }
 }
 
@@ -123,7 +154,7 @@ int main (int argc,char **argv)
         printf("Problemi con l'allocazione dell'array taskids\n");
         exit(4);
     }
-
+    myInit();
     /* creazione dei thread */
     for (i=0; i < NUM_THREADS; i++)
     {
