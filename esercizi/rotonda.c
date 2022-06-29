@@ -62,19 +62,21 @@ void Ruota(int i,int o){
         ingressodopo=0;
     else
         ingressodopo=i+1;
-    for(int j=ingressodopo;(j%(N-1))!=(uscitaprima%(N-1));j++){ 
+    for(int j=ingressodopo;(j%(N-1))!=(uscitaprima%(N-1));){ 
         while(cont<NMAX && content[j]!=0){
             sospesidaiprec[j]++;
             pthread_cond_wait(&daiprec[j],&mutex);
             sospesidaiprec[j]--;
-        }
+        };
+        j++;
+        j=j%(N-1);
     }
     pthread_mutex_unlock(&mutex);
 
 }
 
 bool cequalcunoincoda(){
-    for (int j=1;j<N;j++){
+    for (int j=0;j<N-1;j++){
         if(sospesienter[j]!=0)
             return true;
     }
