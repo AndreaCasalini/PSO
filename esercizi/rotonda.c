@@ -57,8 +57,12 @@ void Ruota(int i,int o){
     else
         uscitaprima=o-1;
     //printf("sono nel thread %lu e i valori sono i+1=%d o-1=%d\n",pthread_self(),((i+1)%(N-1)),uscitaprima);
-
-    for(int j=((i+1)%(N-1));j!=uscitaprima;j++){ 
+    int ingressodopo;
+    if (i==N-1)
+        ingressodopo=0;
+    else
+        ingressodopo=i+1;
+    for(int j=ingressodopo;(j%(N-1))!=(uscitaprima%(N-1));j++){ 
         while(cont<NMAX && content[j]!=0){
             sospesidaiprec[j]++;
             pthread_cond_wait(&daiprec[j],&mutex);
