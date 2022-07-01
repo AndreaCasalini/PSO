@@ -107,12 +107,12 @@ void *Auto(void*id){
         printf("Problemi con l'allocazione di ptr\n");
         exit(-1);
     }
-    /*attribuisco un numero casuale di bagagli ad ogni utente compreso tra 1 e N*/
     int i;
     int o; 
 
     int k=0;
     while(1){
+        /*decido random quale è l'ingresso e quale è l'uscita*/
         i= (rand() % (N)) ;
         o= (rand() % (N)) ; 
         /*arrivo all ingresso della rotatoria*/
