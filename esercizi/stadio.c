@@ -21,7 +21,6 @@ typedef enum{
     nord, sud
 }cancello;
 
-int consistenza; /*da 1 a MAX_G*/
 
 int tifosi_in_stadio;
 
@@ -56,7 +55,6 @@ void myInit(){
         }              
     }
     tifosi_in_stadio=0;
-    consistenza=1; //--------------------FORSE 0
 }
 
 int otherN(int tipo){
