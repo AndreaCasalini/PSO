@@ -172,7 +172,7 @@ void *Tifosi(void*id){
         /*decisione cancello di uscita*/
         c_out= (rand() % (2)) ; 
         /*componenti gruppo random*/
-        num=(rand()%(MAX_G)+1);
+        num=(rand()%(MAX_G-1)+1);
         /*decisione random del tipo di gruppo se italiano o straniero*/
         tipo=(rand() % (2)) ; 
         /*arrivo all ingresso dello stadio*/
