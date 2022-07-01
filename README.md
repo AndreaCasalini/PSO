@@ -2,7 +2,7 @@
 esercizi tesina progettazione di sistemi operativi
 
 # TODO
-- [] ESERCIZIO 1 "ROTONDA STRADALE"
+- [x] ESERCIZIO 1 "ROTONDA STRADALE"
 
 - [x] ESERCIZIO 2 "IL DEPOSITO BAGAGLI"
 - [x] versione 1
@@ -18,5 +18,5 @@ esercizi tesina progettazione di sistemi operativi
 - [x] versione 1
 - [x] versione 2
 - [x] versione 3
-
-- [ ] ESERCIZIO 5 "INGRESSO ED USCITA DA UNO STADIO"
+ 
+- [x] ESERCIZIO 5 "INGRESSO ED USCITA DA UNO STADIO"
