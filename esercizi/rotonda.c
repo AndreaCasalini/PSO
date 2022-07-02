@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-#define CMAX 10 /*numero massimo di auto nella rotonda*/
 #define N 4     /*numero rami della rotonda*/
 #define NMAX 20 /*numero massimo di auto*/
 
@@ -45,6 +44,7 @@ void ingresso(int i){
 void ruota(int i,int o){
     pthread_mutex_lock(&mutex);
     content[i]--;
+    /*vengono segnalti tutti i processi che si sono sospesi e hanno dato la precedenza ai veicoli in transito*/
     if(content[i]==0){
         for(int l=0;l<sospesidaiprec[i];l++){
             pthread_cond_signal(&daiprec[l]);
@@ -55,7 +55,6 @@ void ruota(int i,int o){
         uscitaprima=N-1;
     else
         uscitaprima=o-1;
-    //printf("sono nel thread %lu e i valori sono i+1=%d o-1=%d\n",pthread_self(),((i+1)%(N-1)),uscitaprima);
     int ingressodopo;
     if (i==N-1)
         ingressodopo=0;
