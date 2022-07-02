@@ -10,14 +10,13 @@
 #define N 4     /*numero rami della rotonda*/
 #define NMAX 20 /*numero massimo di auto*/
 
-
-pthread_cond_t enter[N];  /*coda */
-pthread_cond_t daiprec[N];  /*coda */
-pthread_mutex_t mutex;
-int content[N];     /*sospesi in ogni ramo*/
-int cont;           /*numero car in rotonda*/
-int sospesidaiprec[N];
-int sospesienter[N];
+pthread_cond_t enter[N];        /*condition variable per processi che entrano in rotonda*/
+pthread_cond_t daiprec[N];      /*condition variable per processi gia in rotonda che danno la precedenza*/
+pthread_mutex_t mutex;          /*semaforo binario per la mutua esclusione*/
+int content[N];                 /*sospesi in ogni ramo*/
+int cont;                       /*numero car in rotonda*/
+int sospesidaiprec[N];          /*sospesi per dare la precedenza a chi entra in rotonda*/
+int sospesienter[N];            /*sospesi per entrare in rotonda*/
 
 void myInit(){
     pthread_mutex_init(&mutex, NULL);
@@ -31,7 +30,7 @@ void myInit(){
     cont=0;
 }
 
-void Ingresso(int i){
+void ingresso(int i){
     pthread_mutex_lock(&mutex);
     if(cont ==NMAX){
         sospesienter[i]++;
@@ -43,7 +42,7 @@ void Ingresso(int i){
     pthread_mutex_unlock(&mutex);
 }
 
-void Ruota(int i,int o){
+void ruota(int i,int o){
     pthread_mutex_lock(&mutex);
     content[i]--;
     if(content[i]==0){
@@ -83,7 +82,7 @@ bool cequalcunoincoda(){
     return false;
 }
 
-void Esci(int o){
+void esci(int o){
     pthread_mutex_lock(&mutex);
     cont--;
     while (cont<NMAX && cequalcunoincoda()){
@@ -98,18 +97,16 @@ void Esci(int o){
     pthread_mutex_unlock(&mutex);
 }
 
-void *Auto(void*id){
+void *auto(void*id){
     int *pi = (int  *)id;
     int *ptr;
     ptr = (int *)malloc(sizeof(int));
-    if (ptr == NULL)
-    {
+    if (ptr == NULL){
         printf("Problemi con l'allocazione di ptr\n");
         exit(-1);
     }
     int i;
     int o; 
-
     int k=0;
     while(1){
         /*decido random quale è l'ingresso e quale è l'uscita*/
@@ -117,14 +114,14 @@ void *Auto(void*id){
         o= (rand() % (N)) ; 
         /*arrivo all ingresso della rotatoria*/
         printf("Utente-[Thread%d e identificatore %lu] ENTRO ALL'INGRESSO[%d] E VOGLIO USCIRE ALLA [%d] (iter. %d)\n", *pi, pthread_self(),i,o,k);
-        Ingresso(i);
+        ingresso(i);
         /*entro in rotatoria*/
         printf("Utente-[Thread%d e identificatore %lu] RUOTO (iter. %d)\n", *pi, pthread_self(), k);
-        Ruota(i,o);
+        ruota(i,o);
         sleep(5);
         /*esco dalla rotatoria*/
         printf("Utente-[Thread%d e identificatore %lu] ESCO  alla [%d]  (iter. %d)\n", *pi, pthread_self(),o,k);
-        Esci(o);
+        esci(o);
         k++;
         sleep(2);/*tempo prima che l'utente rientri in rotatoria*/
     }
@@ -166,7 +163,7 @@ int main (int argc,char **argv)
     {
         taskids[i] = i;
         printf("Sto per creare il thread %d-esimo\n", taskids[i]);
-        if (pthread_create(&thread[i], NULL, Auto, (void *) (&taskids[i])) != 0)
+        if (pthread_create(&thread[i], NULL, auto, (void *) (&taskids[i])) != 0)
                 printf("SONO IL MAIN E CI SONO STATI PROBLEMI DELLA CREAZIONE DEL thread %d-esimo\n", taskids[i]);
         printf("SONO IL MAIN e ho creato il Pthread %i-esimo con id=%lu\n", i, thread[i]);
     }
