@@ -96,7 +96,7 @@ void esci(int o){
     pthread_mutex_unlock(&mutex);
 }
 
-void *auto(void*id){
+void *Auto(void*id){
     int *pi = (int  *)id;
     int *ptr;
     ptr = (int *)malloc(sizeof(int));
@@ -162,7 +162,7 @@ int main (int argc,char **argv)
     {
         taskids[i] = i;
         printf("Sto per creare il thread %d-esimo\n", taskids[i]);
-        if (pthread_create(&thread[i], NULL, auto, (void *) (&taskids[i])) != 0)
+        if (pthread_create(&thread[i], NULL, Auto, (void *) (&taskids[i])) != 0)
                 printf("SONO IL MAIN E CI SONO STATI PROBLEMI DELLA CREAZIONE DEL thread %d-esimo\n", taskids[i]);
         printf("SONO IL MAIN e ho creato il Pthread %i-esimo con id=%lu\n", i, thread[i]);
     }
