@@ -7,7 +7,7 @@
 #include <stdbool.h>
 
 #define N 4     /*numero rami della rotonda*/
-#define NMAX 20 /*numero massimo di auto*/
+#define NMAX 5 /*numero massimo di auto*/
 
 pthread_cond_t enter[N];        /*condition variable per processi che entrano in rotonda*/
 pthread_cond_t daiprec[N];      /*condition variable per processi gia in rotonda che danno la precedenza*/
@@ -51,11 +51,11 @@ void ruota(int i,int o){
         }
     }
     int uscitaprima;
+    int ingressodopo;
     if (o==0)
         uscitaprima=N-1;
     else
         uscitaprima=o-1;
-    int ingressodopo;
     if (i==N-1)
         ingressodopo=0;
     else
@@ -74,7 +74,7 @@ void ruota(int i,int o){
 }
 
 bool cequalcunoincoda(){
-    for (int j=0;j<N-1;j++){
+    for (int j=0;j<N;j++){
         if(sospesienter[j]!=0)
             return true;
     }
@@ -84,12 +84,13 @@ bool cequalcunoincoda(){
 void esci(int o){
     pthread_mutex_lock(&mutex);
     cont--;
-    while (cont<NMAX && cequalcunoincoda()){
+    if (cont<NMAX && cequalcunoincoda()){
         for(int j=0;j<N;j++){
             int tmp=0;
-            while(cont<NMAX &&tmp<sospesienter[j]){
+            //al posto di j mettere (j+o+1)/(N-1) per evitare starvation
+            while(cont<NMAX &&tmp<sospesienter[(j+o+1)/(N-1)]){
                 tmp++;
-                pthread_cond_signal(&enter[j]);
+                pthread_cond_signal(&enter[(j+o+1)/(N-1)]);
             }
         }
     }
