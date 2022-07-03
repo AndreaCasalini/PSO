@@ -36,13 +36,10 @@ void myInit(){
     for(int i=0;i<2;i++){
         for(int k=0;k<2;k++){
             for(int s=0;s<2;s++){
-                n_corridoio[i][k][s]=0;
+                n_corridoio[i][k][s]=0;            //n_corridoio[corridoio][nazionalità][direzione]
             }
         }
     }
-    
-            
-
     for(int i=0;i<2;i++){
         for(int k=0;k<2;k++){
             for(int s=0;s<MAX_G;s++){
@@ -50,7 +47,6 @@ void myInit(){
                 sospesi_coda_out[i][k][s]=0;
                 pthread_cond_init(&coda_in[i][k][s], NULL);     //coda_in[corridoio][nazionalità][num]
                 pthread_cond_init(&coda_out[i][k][s], NULL);
-
             }
         }              
     }
