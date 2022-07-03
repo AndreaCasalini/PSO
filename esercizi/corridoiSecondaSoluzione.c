@@ -8,10 +8,9 @@
 #define CAPAC 10    /*capacità stanza*/
 #define MAX 3       /*capacità corridoio*/
 
-
 int corridoio;      /*numero di corridoio 1 o 2*/
 int gruppo;         /*numero di persone che compongono il gruppo da 1 a MAX*/
-int contatt;        /*elementi in attesa in sala*/  //<<<<---non so se serve
+int contatt;        /*elementi in attesa della sala*/  
 int cap;          /*capacità corrente della sala*/
 typedef enum{
     in, out
@@ -20,8 +19,8 @@ typedef enum{
 dir direz[2];                 /*2 rappresenta il numero di corridoi*/
 
 int nutenti[2];               /*2 rappresenta il numero di corridoi*/
-pthread_mutex_t mutex;
-pthread_cond_t attsala;
+pthread_mutex_t mutex;        /*semaforo binario di mutua esclusione*/
+pthread_cond_t attsala;       /*coda in attesa di capienza sufficiente nella stanza*/
 pthread_cond_t codain[2];     /*2 rappresenta il numero di corridoi*/
 pthread_cond_t codaout[2];    /*2 rappresenta il numero di corridoi*/
 int attesa_coda_in[2];

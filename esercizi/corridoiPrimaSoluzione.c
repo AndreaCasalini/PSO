@@ -19,8 +19,8 @@ typedef enum{
 
 dir direz[2];                 /*2 rappresenta il numero di corridoi*/
 int nutenti[2];               /*2 rappresenta il numero di corridoi*/
-pthread_mutex_t mutex;
-pthread_cond_t attsala;       /*in attesa di capienza sufficiente nella stanza*/
+pthread_mutex_t mutex;        /*semaforo binario di mutua esclusione*/
+pthread_cond_t attsala;       /*coda in attesa di capienza sufficiente nella stanza*/
 pthread_cond_t codain[2];     /*2 rappresenta il numero di corridoi*/
 pthread_cond_t codaout[2];    /*2 rappresenta il numero di corridoi*/
 int attesa_coda_in[2];
