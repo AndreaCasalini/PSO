@@ -10,7 +10,6 @@
 
 int corridoio;      /*numero di corridoio 1 o 2*/
 int gruppo;         /*numero di persone che compongono il gruppo da 1 a MAX*/
-int contatt;        /*elementi in attesa della sala*/  
 int cap;          /*capacità corrente della sala*/
 typedef enum{
     in, out
@@ -20,7 +19,6 @@ dir direz[2];                 /*2 rappresenta il numero di corridoi*/
 
 int nutenti[2];               /*2 rappresenta il numero di corridoi*/
 pthread_mutex_t mutex;        /*semaforo binario di mutua esclusione*/
-pthread_cond_t attsala;       /*coda in attesa di capienza sufficiente nella stanza*/
 pthread_cond_t codain[2];     /*2 rappresenta il numero di corridoi*/
 pthread_cond_t codaout[2];    /*2 rappresenta il numero di corridoi*/
 int attesa_coda_in[2];
@@ -37,7 +35,6 @@ void myInit(){
     }
     pthread_mutex_init(&mutex, NULL);
     pthread_cond_init(&attsala, NULL);
-    contatt=0;
     cap=0;
 }
 
@@ -90,10 +87,6 @@ void INcorrRilascio(int c, int n){
 void OUTcorrAccesso(int c, int n){
     pthread_mutex_lock(&mutex);
     cap-=n;                       /*svuoto sala del gruppo corrente che esce*/
-    //segnala eventualmente all altro corridoio
-    for(int i=0;i<contatt;i++){
-        pthread_cond_signal(&attsala);          /*sveglio tutti i processi in attesa della sala*/
-    }
     while(((direz[c]!=out)&&(nutenti[c]!=0))||((direz[c]==out)&&(nutenti[c]+n>MAX))){ 
         attesa_coda_out[c]++;
         pthread_cond_wait(&codaout[c],&mutex);  /*metto in coda i processi che non trovano il corridoio abbastanza vuoto per attraversarlo*/
