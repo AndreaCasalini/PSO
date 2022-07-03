@@ -7,13 +7,13 @@
 
 #define P 4         /*numero pompe*/
 #define L 1000      /*numero litri disponibili dal benzinaio*/
-
+#define MAXRICHIESTA 100 /*richeista massima dei veicoli*/
 int benzdisp;       /*benzina disponibile*/
 int pompedisp;      /*pompe disponibili*/
 int sospesi;        /*numero automobili sospese*/
 pthread_cond_t codaAM;  /*coda automobili*/
 pthread_cond_t codaAB;  /*coda autobotte*/
-pthread_mutex_t mutex;
+pthread_mutex_t mutex;  /*semaforo binario per la mutua esclusione*/
 int sospesaAB;      /*sospensione autobotte*/
 
 void myInit(){
@@ -102,7 +102,7 @@ void *automobile(void*id){
     /*attribuisco un numero casuale di bagagli ad ogni utente compreso tra 1 e N*/
     int i=0;
     while(1){
-        int l= (rand() % (100)) + 1 ;   /*numero litri richiesti dal veicolo*/
+        int l= (rand() % (MAXRICHIESTA)) + 1 ;   /*numero litri richiesti dal veicolo*/
         /* entrano*/
         printf("Automobile-[Thread%d e identificatore %lu] RICHIEDO [%d] LITRI (iter. %d)\n", *pi, pthread_self(),l,i);
         Richiedi(l);
