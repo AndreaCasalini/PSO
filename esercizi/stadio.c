@@ -10,10 +10,6 @@
 #define MAX_G 45
 
 typedef enum{
-    in, out
-}direzione;
-
-typedef enum{
     italiani, stranieri
 }nazionalità;
 
