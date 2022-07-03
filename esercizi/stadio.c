@@ -6,26 +6,21 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-#define MAX_C 100
-#define MAX_G 45
-
+#define MAX_C 100   //capienza stadio
+#define MAX_G 45    //capienza corridoio
 typedef enum{
     italiani, stranieri
 }nazionalità;
-
 typedef enum{
     nord, sud
 }cancello;
-
-
-int tifosi_in_stadio;
-
-pthread_mutex_t mutex;
-pthread_cond_t coda_in[2][2][MAX_G];
-pthread_cond_t coda_out[2][2][MAX_G];
+int tifosi_in_stadio;   //numero di tifosi nello stadio
+pthread_mutex_t mutex;  //semaforo binario per mutua esclusione
+pthread_cond_t coda_in[2][2][MAX_G];    //struttura dati di condition variable per l'ingresso [corridoio][nazionalita][numeroPersone]
+pthread_cond_t coda_out[2][2][MAX_G];   //struttura dati di condition variable per l'uscita [corridoio][nazionalita][numeroPersone]
 int n_corridoio[2][2][2];             /*numero di persone in ogni corridoio*/
-int sospesi_coda_in[2][2][MAX_G];
-int sospesi_coda_out[2][2][MAX_G];
+int sospesi_coda_in[2][2][MAX_G];       //struttura dati per contatore sospesi in ingresso [corridoio][nazionalita][numeroPersone]
+int sospesi_coda_out[2][2][MAX_G];      //struttura dati per contatore sospesi in uscita [corridoio][nazionalita][numeroPersone]
 
 void myInit(){
     pthread_mutex_init(&mutex, NULL);
@@ -84,7 +79,7 @@ void segnalaout(int c, int tipo){
 }
 
 
-void Acq_in(int c,int num,int tipo){
+void acq_in(int c,int num,int tipo){
     pthread_mutex_lock(&mutex);
 
     /*se non ci stanno nello stadio,se ce gia un gruppo in uscita di altra nazionalità, 
@@ -102,7 +97,7 @@ void Acq_in(int c,int num,int tipo){
     pthread_mutex_unlock(&mutex);
 }
 
-void Ril_in(int c,int num,int tipo){
+void ril_in(int c,int num,int tipo){
     pthread_mutex_lock(&mutex);
 
     n_corridoio[c][tipo][0]-=num;
@@ -112,7 +107,7 @@ void Ril_in(int c,int num,int tipo){
     pthread_mutex_unlock(&mutex);
 }
 
-void Acq_out(int c,int num,int tipo){
+void acq_out(int c,int num,int tipo){
     pthread_mutex_lock(&mutex);
     
     //se ci sono gruppi di tipo opposto in direzione opposta 
@@ -133,7 +128,7 @@ void Acq_out(int c,int num,int tipo){
     pthread_mutex_unlock(&mutex);
 }
 
-void Ril_out(int c,int num,int tipo){
+void ril_out(int c,int num,int tipo){
     pthread_mutex_lock(&mutex);
     n_corridoio[c][tipo][1]-=num;
     segnalain(c,otherN(tipo));
@@ -169,17 +164,17 @@ void *Tifosi(void*id){
         tipo=(rand() % (2)) ; 
         /*arrivo all ingresso dello stadio*/
         printf("Utente-[Thread%d e identificatore %lu] ENTRO ALL'INGRESSO[%d] E SONO DI TIPO [%d] IN [%d]   (iter. %d)\n", *pi, pthread_self(),c_in,tipo,num,k);
-        Acq_in(c_in,num,tipo);
+        acq_in(c_in,num,tipo);
         sleep(2);
-        Ril_in(c_in,num,tipo);
+        ril_in(c_in,num,tipo);
         /*entro in stadio*/
         printf("Utente-[Thread%d e identificatore %lu] RIMANE NELLO STADIO                                  (iter. %d)\n", *pi, pthread_self(), k);
         sleep(5);
         /*esco dalla rotatoria*/
         printf("Utente-[Thread%d e identificatore %lu] ESCO  DALLO STADIO DALL USCITA [%d]                  (iter. %d)\n", *pi, pthread_self(),c_out,k);
-        Acq_out(c_out,num,tipo);
+        acq_out(c_out,num,tipo);
         sleep(2);
-        Ril_out(c_out,num,tipo);
+        ril_out(c_out,num,tipo);
         k++;
         sleep(2);/*tempo prima che l'utente rientri in rotatoria*/
     }
