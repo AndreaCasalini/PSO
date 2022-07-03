@@ -26,7 +26,7 @@ void myInit(){
     pompedisp=P;
 }
 
-void Richiedi(int l){
+void richiedi(int l){
     pthread_mutex_lock(&mutex);
     while(pompedisp==0 || benzdisp<l || sospesaAB !=0 ){
         sospesi++;
@@ -40,7 +40,7 @@ void Richiedi(int l){
     pthread_mutex_unlock(&mutex); 
 }
 
-void Rilascia(){
+void rilascia(){
     pthread_mutex_lock(&mutex);
     /*rilascio delle risorse*/
     pompedisp++;
@@ -55,7 +55,7 @@ void Rilascia(){
     pthread_mutex_unlock(&mutex); 
 }
 
-void Rifornisci(){
+void rifornisci(){
     pthread_mutex_lock(&mutex);
     if(pompedisp<P){
         /*ci sono automobili che stanno facendo benzina*/
@@ -85,7 +85,7 @@ void *autobotte(void*id){
     int i=0;
     while(1){
         printf("AUTOBOTTE-[Thread%d e identificatore %lu] (iter. %d)\n", *pi, pthread_self(),i);
-        Rifornisci();
+        rifornisci();
         i++;
         sleep(10);
     }
@@ -105,13 +105,13 @@ void *automobile(void*id){
         int l= (rand() % (MAXRICHIESTA)) + 1 ;   /*numero litri richiesti dal veicolo*/
         /* entrano*/
         printf("Automobile-[Thread%d e identificatore %lu] RICHIEDO [%d] LITRI (iter. %d)\n", *pi, pthread_self(),l,i);
-        Richiedi(l);
+        richiedi(l);
         /*aspetto*/
         printf("Automobile-[Thread%d e identificatore %lu] ASPETTO              (iter. %d)\n", *pi, pthread_self(), i);
         sleep(3);
         /*escono*/
         printf("Automobile-[Thread%d e identificatore %lu] RILASCIO             (iter. %d)\n", *pi, pthread_self(), i);
-        Rilascia(l);
+        rilascia(l);
         /*tempo prima che l'utente rientri in fila per entrare dalbenzinaio*/
         i++;
         sleep(2);
