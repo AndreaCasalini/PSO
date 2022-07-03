@@ -125,10 +125,11 @@ void *utente(void*id){
         printf("Problemi con l'allocazione di ptr\n");
         exit(-1);
     }
-    /*attribuisco un numero casuale di bagagli ad ogni utente compreso tra 1 e N*/
     int i=0;
     while(1){
+        /*attribuisco un numero casuale di bagagli ad ogni utente compreso tra 1 e N*/
         int n= (rand() % (MAX)) + 1 ;   /*numero utenti nel gruppo*/
+        /*attribuisco un numero casuale per il corridoio scelto o 0 o 1*/
         int c=(rand() % (2));           /*numero corridoio scelto*/
         /* entrano*/
         printf("Utente-[Thread%d e identificatore %lu] ENTRIAMO IN N.[%d] NEL CORRIDOIO [%d] (iter. %d)\n", *pi, pthread_self(),n,c,i);
