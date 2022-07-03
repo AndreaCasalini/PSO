@@ -34,7 +34,6 @@ void myInit(){
         pthread_cond_init(&codaout[i], NULL);
     }
     pthread_mutex_init(&mutex, NULL);
-    pthread_cond_init(&attsala, NULL);
     cap=0;
 }
 
