@@ -8,12 +8,15 @@
 
 #define MAX_C 100   //capienza stadio
 #define MAX_G 45    //capienza corridoio
+
 typedef enum{
     italiani, stranieri
 }nazionalità;
+
 typedef enum{
     nord, sud
 }cancello;
+
 int tifosi_in_stadio;   //numero di tifosi nello stadio
 pthread_mutex_t mutex;  //semaforo binario per mutua esclusione
 pthread_cond_t coda_in[2][2][MAX_G];    //struttura dati di condition variable per l'ingresso [corridoio][nazionalita][numeroPersone]
@@ -82,7 +85,7 @@ void segnalaout(int c, int tipo){
 void acq_in(int c,int num,int tipo){
     pthread_mutex_lock(&mutex);
 
-    /*se non ci stanno nello stadio,se ce gia un gruppo in uscita di altra nazionalità, 
+    /*se non ci stanno nello stadio,se ce gia un gruppo in attesa di uscita di altra nazionalità, 
     se stanno uscendo da stesso corridoio ma di altra nazionalità*/
     while((tifosi_in_stadio+num>MAX_C)|| (n_corridoio[c][otherN(tipo)][1]>0) || cecoda_out(c,otherN(tipo))){
         sospesi_coda_in[c][tipo][num]++;
