@@ -11,10 +11,18 @@
 /*variabili globali*/
 /* semaforo di mutua esclusione per l'accesso a tutte le variabili condivise 
 (simula il semaforo di mutua esclusiome associato ad una istanza di tipo monitor) */
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; 
+pthread_mutex_t mutex; 
 pthread_cond_t coda;
-int contatore_sospesi=0;      /*contatore di utenti in coda in attesa di risveglio*/
-int cap_vano[V]={0};          /*array struttura deposito*/
+int contatore_sospesi;      /*contatore di utenti in coda in attesa di risveglio*/
+int cap_vano[V];         /*array struttura deposito*/
+
+void myInit(){
+     for(int i=0;i<V;i++)
+          cap_vano[i]=0;
+     contatore_sospesi=0;
+     pthread_mutex_init(&mutex, NULL);
+     pthread_cond_init(&coda, NULL);
+}
 
 void lascia(int *quale_vano,int n_bagagli){ 
      pthread_mutex_lock(&mutex);
@@ -58,7 +66,8 @@ void *user(void*id){
           printf("Problemi con l'allocazione di ptr\n");
           exit(-1);
      }
-     /*attribuisco un numero casuale di bagagli ad ogni utente compreso tra 1 e N*/
+     /*attribuisco un numero casuale di bagagli ad ogni utente compreso tra 1 e N, si può anche spostare all'interno del
+     ciclo while cosi ogni volta  l'utente ha bagagli diversi*/
      int n_bagagli= (rand() % (N)) + 1 ; 
      int i=0;
      while(1){
