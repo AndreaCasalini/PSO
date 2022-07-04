@@ -57,7 +57,7 @@ void INcorrAccesso(int c,int n){
     }
     nutenti[c]+=n;
     direz[c]=in;
-    printf("il processo con pid [%lu] entra nel corridoio [%d] e con [%d] componenti del gruppo. NEL CORRIDOIO SONO IN [%d]\n",pthread_self(),c,n,nutenti[c]); 
+    //printf("il processo con pid [%lu] entra nel corridoio [%d] e con [%d] componenti del gruppo. NEL CORRIDOIO SONO IN [%d]\n",pthread_self(),c,n,nutenti[c]); 
     pthread_mutex_unlock(&mutex); 
 }
 
@@ -134,16 +134,21 @@ void *utente(void*id){
         /* entrano*/
         printf("Utente-[Thread%d e identificatore %lu] ENTRIAMO IN N.[%d] NEL CORRIDOIO [%d] (iter. %d)\n", *pi, pthread_self(),n,c,i);
         INcorrAccesso(c,n);
+        printf("Utente-[Thread%d e identificatore %lu] SONO ENTRATO NEL CORRIDOIO_IN (iter. %d)\n", *pi, pthread_self(),i);
         sleep(1);/*transita*/
         INcorrRilascio(c,n);
+        printf("Utente-[Thread%d e identificatore %lu] ESCO DAL CORRIDOIO_IN E SONO NELLA STANZA (iter. %d)\n", *pi, pthread_self(),i);
         /*aspetto*/
-        printf("Utente-[Thread%d e identificatore %lu] ASPETTO                (iter. %d)\n", *pi, pthread_self(), i);
+        printf("Utente-[Thread%d e identificatore %lu] ASPETTO  (iter. %d)\n", *pi, pthread_self(), i);
         sleep(3);
         /*escono*/
-        printf("Utente-[Thread%d e identificatore %lu] ESCONO                 (iter. %d)\n", *pi, pthread_self(), i);
+        printf("Utente-[Thread%d e identificatore %lu] ESCONO   (iter. %d)\n", *pi, pthread_self(), i);
         OUTcorrAccesso(c,n);
+        printf("Utente-[Thread%d e identificatore %lu] SONO ENTRATO NEL CORRIDOIO_OUT (iter. %d)\n", *pi, pthread_self(),i);
         sleep(1);/*transita*/
         OUTcorrRilascio(c,n);
+        printf("Utente-[Thread%d e identificatore %lu] ESCO DAL CORRIDOIO_OUT (iter. %d)\n", *pi, pthread_self(),i);
+
         i++;
         sleep(2);/*tempo prima che l'utente rientri in fila per entrare nella sala*/
     }
