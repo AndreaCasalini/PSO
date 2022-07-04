@@ -83,7 +83,7 @@ void Rifornisci(){
         /*quandovengo rilasciato*/
     }
     benzdisp=L;
-    printf("AUTOBOTTE HA RIFORNITO\n");
+    //printf("AUTOBOTTE HA RIFORNITO\n");
     /*risveglio automobili in coda*/
     if (sospesiU!=0){
         pthread_cond_signal(&codaAMU);
@@ -107,8 +107,9 @@ void *autobotte(void*id){
     }
     int i=0;
     while(1){
-        printf("AUTOBOTTE-[Thread%d e identificatore %lu] (iter. %d)\n", *pi, pthread_self(),i);
+        printf("AUTOBOTTE-[Thread%d e identificatore %lu] ARRIVA (iter. %d)\n", *pi, pthread_self(),i);
         Rifornisci();
+        printf("AUTOBOTTE-[Thread%d e identificatore %lu] HA RIFORNITO (iter. %d)\n", *pi, pthread_self(),i);
         i++;
         sleep(10);
     }

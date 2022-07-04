@@ -39,7 +39,7 @@ void Richiedi(int l){
     /*acquisizione delle risorse*/
     pompedisp--;
     benzdisp-=l;
-    printf("----------------Capacità attuale %d\n",benzdisp);
+    //printf("Capacità attuale %d\n",benzdisp);
     pthread_mutex_unlock(&mutex); 
 }
 
@@ -74,7 +74,7 @@ void Esci(){
     pthread_mutex_lock(&mutex);
     riempimento=false;
     benzdisp=L;
-    printf("AUTOBOTTE HA RIFORNITO********************************\n");
+    //printf("AUTOBOTTE HA RIFORNITO\n");
 
     int s=sospesi;
     for(int i=0;i<s;i++)
@@ -94,10 +94,12 @@ void *autobotte(void*id){
     }
     int i=0;
     while(1){
-        printf("AUTOBOTTE-[Thread%d e identificatore %lu] (iter. %d)\n", *pi, pthread_self(),i);
+        printf("AUTOBOTTE-[Thread%d e identificatore %lu] ARRIVA (iter. %d)\n", *pi, pthread_self(),i);
         Entra();
+        printf("AUTOBOTTE-[Thread%d e identificatore %lu] STO RIFORNENDO (iter. %d)\n", *pi, pthread_self(),i);
         sleep(1); /*riempi la cisterna*/
         Esci();
+        printf("AUTOBOTTE-[Thread%d e identificatore %lu] HO RIFORNITO ED ESCO (iter. %d)\n", *pi, pthread_self(),i);
         i++;
         sleep(10);
     }
