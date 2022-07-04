@@ -84,7 +84,6 @@ void segnalaout(int c, int tipo){
 
 void acq_in(int c,int num,int tipo){
     pthread_mutex_lock(&mutex);
-
     /*se non ci stanno nello stadio,se ce gia un gruppo in attesa di uscita di altra nazionalità, 
     se stanno uscendo da stesso corridoio ma di altra nazionalità*/
     while((tifosi_in_stadio+num>MAX_C)|| (n_corridoio[c][otherN(tipo)][1]>0) || cecoda_out(c,otherN(tipo))){
@@ -95,24 +94,20 @@ void acq_in(int c,int num,int tipo){
     n_corridoio[c][tipo][0]+=num;
     tifosi_in_stadio+=num;
     pthread_cond_signal(&coda_in[c][tipo][num]);    /*sveglia gli omologhi per numero di componenti*/
-    printf("Sono    %lu     sono nell'ingresso  per entrare %d  e sono di nazionalita   %d\n",pthread_self(),c,tipo);
-
+    //printf("Sono    %lu     sono nell'ingresso  per entrare %d  e sono di nazionalita   %d\n",pthread_self(),c,tipo);
     pthread_mutex_unlock(&mutex);
 }
 
 void ril_in(int c,int num,int tipo){
     pthread_mutex_lock(&mutex);
-
     n_corridoio[c][tipo][0]-=num;
     segnalaout(c,otherN(tipo));
-    printf("Sono    %lu   entro in stadio   \n",pthread_self());
-
+    //printf("Sono    %lu   entro in stadio   \n",pthread_self());
     pthread_mutex_unlock(&mutex);
 }
 
 void acq_out(int c,int num,int tipo){
     pthread_mutex_lock(&mutex);
-    
     //se ci sono gruppi di tipo opposto in direzione opposta 
     while((n_corridoio[c][otherN(tipo)][0]>0)){ 
         //printf("SONO %lu IN ACQOUT WHILE VALE %d\n",pthread_self(),n_corridoio[c][otherN(tipo)][0]);
@@ -126,8 +121,7 @@ void acq_out(int c,int num,int tipo){
     segnalain(otherC(c),stranieri);
     segnalain(otherC(c),italiani);
     pthread_cond_signal(&coda_out[c][tipo][num]);
-    printf("Sono    %lu     sono nell'ingresso per uscire %d  e sono di nazionalita   %d\n",pthread_self(),c,tipo);
-
+    //printf("Sono    %lu     sono nell'ingresso per uscire %d  e sono di nazionalita   %d\n",pthread_self(),c,tipo);
     pthread_mutex_unlock(&mutex);
 }
 
@@ -135,8 +129,7 @@ void ril_out(int c,int num,int tipo){
     pthread_mutex_lock(&mutex);
     n_corridoio[c][tipo][1]-=num;
     segnalain(c,otherN(tipo));
-    printf("Sono    %lu   esco in stadio   \n",pthread_self());
-
+    //printf("Sono    %lu   esco in stadio   \n",pthread_self());
     pthread_mutex_unlock(&mutex);
 }
 
@@ -166,8 +159,9 @@ void *Tifosi(void*id){
         /*decisione random del tipo di gruppo se italiano o straniero*/
         tipo=(rand() % (2)) ; 
         /*arrivo all ingresso dello stadio*/
-        printf("Utente-[Thread%d e identificatore %lu] ENTRO ALL'INGRESSO[%d] E SONO DI TIPO [%d] IN [%d]   (iter. %d)\n", *pi, pthread_self(),c_in,tipo,num,k);
+        printf("Utente-[Thread%d e identificatore %lu] ARRIVO ALL'INGRESSO[%d] E SONO DI TIPO [%d] IN [%d]   (iter. %d)\n", *pi, pthread_self(),c_in,tipo,num,k);
         acq_in(c_in,num,tipo);
+        printf("Utente-[Thread%d e identificatore %lu] SONO ENTRATO COR_IN  (iter. %d)\n", *pi, pthread_self(),k);
         sleep(2);
         ril_in(c_in,num,tipo);
         /*entro in stadio*/
@@ -176,8 +170,11 @@ void *Tifosi(void*id){
         /*esco dalla rotatoria*/
         printf("Utente-[Thread%d e identificatore %lu] ESCO  DALLO STADIO DALL USCITA [%d]                  (iter. %d)\n", *pi, pthread_self(),c_out,k);
         acq_out(c_out,num,tipo);
+        printf("Utente-[Thread%d e identificatore %lu] SONO ENTRATO COR_OUT  (iter. %d)\n", *pi, pthread_self(),k);
         sleep(2);
         ril_out(c_out,num,tipo);
+        printf("Utente-[Thread%d e identificatore %lu] SONO USCITO DALLO STADIO  (iter. %d)\n", *pi, pthread_self(),k);
+
         k++;
         sleep(2);/*tempo prima che l'utente rientri in rotatoria*/
     }
