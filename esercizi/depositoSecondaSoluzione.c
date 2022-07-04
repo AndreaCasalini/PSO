@@ -118,7 +118,7 @@ int main (int argc,char **argv)
         printf("Problemi con l'allocazione dell'array taskids\n");
         exit(4);
     }
-
+    myInit();
     /* creazione dei thread */
     for (i=0; i < NUM_THREADS; i++)
     {
