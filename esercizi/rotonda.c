@@ -87,10 +87,10 @@ void esci(int o){
     if (cont<NMAX && cequalcunoincoda()){
         for(int j=0;j<N;j++){
             int tmp=0;
-            //al posto di j mettere (j+o+1)/(N-1) per evitare starvation
-            while(cont<NMAX &&tmp<sospesienter[(j+o+1)/(N-1)]){
+            //al posto di j mettere (j+o+1)%(N-1) per evitare starvation
+            while(cont<NMAX &&tmp<sospesienter[(j+o+1)%(N-1)]){
                 tmp++;
-                pthread_cond_signal(&enter[(j+o+1)/(N-1)]);
+                pthread_cond_signal(&enter[(j+o+1)%(N-1)]);
             }
         }
     }
