@@ -41,7 +41,7 @@ void lascia(int *quale_vano,int n_bagagli){
                contatore_sospesi--;
           }
      }
-     printf("INSERISCO BAGAGLIO NEL VANO %d e sono il thread con id %lu\n",*quale_vano,pthread_self());
+     //printf("INSERISCO BAGAGLIO NEL VANO %d e sono il thread con id %lu\n",*quale_vano,pthread_self());
      cap_vano[*quale_vano-1]+=n_bagagli;
      pthread_mutex_unlock(&mutex); 
 
