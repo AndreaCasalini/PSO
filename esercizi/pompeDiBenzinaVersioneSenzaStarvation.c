@@ -51,7 +51,7 @@ void Richiedi(int l){
     /*acquisizione delle risorse*/
     pompedisp--;
     benzdisp-=l;
-    printf("----------------Capacità attuale %d\n",benzdisp);
+    //printf("Capacità attuale %d\n",benzdisp);
     pthread_mutex_unlock(&mutex); 
 }
 
@@ -63,13 +63,13 @@ void Rilascia(){
         /*risveglio autobotte*/
         pthread_cond_signal(&codaAB);
     }
-    int s=sospesi;
-    for(int i=0;i<s;i++)
-        pthread_cond_signal(&codaAM);
     int su=sospesiU;
     for(int i=0;i<su;i++)
         pthread_cond_signal(&codaAMU);
-    
+    int s=sospesi;
+    for(int i=0;i<s;i++)
+        pthread_cond_signal(&codaAM);
+
     pthread_mutex_unlock(&mutex); 
 }
 
@@ -83,7 +83,7 @@ void Rifornisci(){
         /*quandovengo rilasciato*/
     }
     benzdisp=L;
-    printf("AUTOBOTTE HA RIFORNITO********************************\n");
+    printf("AUTOBOTTE HA RIFORNITO\n");
     /*risveglio automobili in coda*/
     if (sospesiU!=0){
         pthread_cond_signal(&codaAMU);
