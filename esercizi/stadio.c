@@ -11,7 +11,7 @@
 
 typedef enum{
     italiani, stranieri
-}nazionalità;
+}nazionalita;
 
 typedef enum{
     nord, sud
