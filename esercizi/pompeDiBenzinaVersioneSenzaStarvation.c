@@ -181,9 +181,12 @@ int main (int argc,char **argv)
     myInit();
     /* creazione dei thread */
     taskids2[0]=0;
+    printf("Sto per creare il thread_autobotte %d-esimo\n", taskids2[0]);
     if(pthread_create(&thread2[0], NULL, autobotte, (void *) (&taskids2[0])) != 0){
                 printf("SONO IL MAIN E CI SONO STATI PROBLEMI DELLA CREAZIONE DEL thread %d-esimo\n", taskids2[0]);
     }
+    printf("SONO IL MAIN e ho creato il Pthread-autobotte %i-esimo con id=%lu\n", 0, thread2[0]);
+
 
     for (i=0; i < NUM_THREADS; i++)
     {
